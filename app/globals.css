@@ -86,3 +86,36 @@
 .gallery-disclaimer{max-width:720px}
 @media(max-width:900px){.category-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.category-card:last-child{grid-column:auto}.drop-count{display:flex;flex-direction:column;align-items:flex-start;gap:8px}.category-filter-row{justify-content:flex-start}}
 @media(max-width:600px){.category-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.category-card:last-child{grid-column:auto;min-height:255px}.category-filter-row{gap:5px}.filter-chip{padding:7px 8px;font-size:7px}.gallery-thumbnails{grid-template-columns:repeat(4,minmax(78px,1fr));padding-bottom:4px}.gallery-thumb{aspect-ratio:.8}.gallery-main{aspect-ratio:.8}}
+
+
+/* Functional wishlist and shopping bag drawers */
+.wishlist-header{position:relative}
+.wishlist-header>span{position:absolute;right:-5px;top:-5px;min-width:15px;height:15px;padding:0 3px;border-radius:50%;background:var(--olive);color:white;font:8px var(--mono);display:grid;place-items:center}
+.bag-button{border:0;background:transparent;color:inherit;display:flex;align-items:center;gap:7px;cursor:pointer;font:10px var(--mono);letter-spacing:.06em;padding:8px 0}
+.store-overlay{position:fixed;inset:0;z-index:1000;background:rgba(19,21,17,.48);display:flex;justify-content:flex-end}
+.store-drawer{height:100%;width:min(100%,490px);background:var(--paper);padding:clamp(20px,4vw,34px);display:flex;flex-direction:column;box-shadow:-10px 0 35px #00000012;overflow-y:auto;animation:drawer-in .22s ease-out}
+@keyframes drawer-in{from{transform:translateX(25px);opacity:.7}to{transform:translateX(0);opacity:1}}
+.drawer-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;border-bottom:1px solid var(--line);padding-bottom:22px}
+.drawer-heading h2{font:500 clamp(32px,5vw,43px)/1 var(--display);letter-spacing:-.06em;margin:10px 0 0}
+.drawer-heading h2 em{font-style:normal;color:var(--olive)}
+.drawer-close{width:38px;height:38px;border:1px solid var(--line);background:transparent;display:grid;place-items:center;cursor:pointer}
+.drawer-items{display:flex;flex-direction:column;gap:0;overflow:auto}
+.drawer-item{display:grid;grid-template-columns:104px minmax(0,1fr);gap:16px;padding:18px 0;border-bottom:1px solid var(--line)}
+.drawer-item-image{display:block;width:104px;aspect-ratio:.8;background-color:#e5e1d7;background-size:cover;background-position:center}
+.drawer-item-info{min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:7px}
+.drawer-item-info>a{font-size:14px;color:var(--ink);text-decoration:none;font-weight:600}
+.drawer-item-info p{font-size:11px;color:#77796f;margin:0}
+.drawer-item-info strong{font-size:14px}
+.drawer-item-info button,.drawer-clear{border:0;background:transparent;text-decoration:underline;text-underline-offset:3px;color:#73766a;font:9px var(--mono);cursor:pointer;padding:4px 0}
+.drawer-item-actions{display:flex;gap:15px;flex-wrap:wrap}
+.drawer-item-actions button:first-child{color:var(--ink)}
+.drawer-total{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding-top:20px;margin-top:auto;font:10px var(--mono);letter-spacing:.08em}
+.drawer-total strong{font:600 20px var(--sans,Arial);letter-spacing:0}
+.drawer-note{font-size:11px;line-height:1.7;color:#77796f}
+.drawer-primary{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:17px 18px;background:var(--ink);color:white;border:0;font:10px var(--mono);letter-spacing:.06em;cursor:pointer;margin-top:10px}
+.drawer-clear{align-self:center;margin:14px 0 0}
+.drawer-empty{margin:auto 0;min-height:260px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:11px}
+.drawer-empty h3{font:500 30px var(--display);letter-spacing:-.05em;margin:8px 0 0}
+.drawer-empty p{font-size:12px;color:#77796f;margin:0 0 12px}
+.drawer-empty .drawer-primary{max-width:290px}
+@media(max-width:600px){.header-actions{gap:9px}.wishlist-header{display:flex}.bag-button{font-size:8px;gap:4px}.store-drawer{padding:22px 18px}.drawer-item{grid-template-columns:86px minmax(0,1fr);gap:12px}.drawer-item-image{width:86px}.drawer-heading h2{font-size:34px}}
