@@ -56,12 +56,28 @@ export default function HomePage() {
     const matchesCategory = !selectedCategory || p.category === (categoryMap[selectedCategory] || selectedCategory);
     return matchesQuery && matchesCategory;
   }), [query, selectedCategory]);
+  const bagProducts = useMemo(() => bag.map(id => products.find(product => product.id === id)).filter((product): product is Product => Boolean(product)), [bag]);
+  const savedProducts = useMemo(() => saved.map(id => products.find(product => product.id === id)).filter((product): product is Product => Boolean(product)), [saved]);
+  const bagTotal = useMemo(() => bagProducts.reduce((total, product) => total + product.price, 0), [bagProducts]);
+
   function addToBag(product: Product) {
-    setBag(old => old.includes(product.id) ? old : [...old, product.id]);
-    setToast(bag.includes(product.id) ? "Already in your bag" : "Added to your bag");
+    const alreadyInBag = bag.includes(product.id);
+    setBag(current => current.includes(product.id) ? current : [...current, product.id]);
+    setToast(alreadyInBag ? "Already in your bag" : "Added to your bag");
     window.setTimeout(() => setToast(""), 1800);
   }
-  function toggleSaved(id: number) { setSaved(old => old.includes(id) ? old.filter(x => x !== id) : [...old, id]); }
+  function removeFromBag(id: number) {
+    setBag(current => current.filter(productId => productId !== id));
+  }
+  function removeFromWishlist(id: number) {
+    setSaved(current => current.filter(productId => productId !== id));
+  }
+  function toggleSaved(id: number) {
+    const alreadySaved = saved.includes(id);
+    setSaved(current => current.includes(id) ? current.filter(productId => productId !== id) : [...current, id]);
+    setToast(alreadySaved ? "Removed from wishlist" : "Saved to wishlist");
+    window.setTimeout(() => setToast(""), 1800);
+  }
 
   return <main id="top">
     <div className="announcement"><span>GOOD FINDS. BETTER FUTURES.</span><span className="announcement-right">CURATED PRE-LOVED CLOTHING <b>✳</b> MADE TO BE WORN AGAIN</span></div>
