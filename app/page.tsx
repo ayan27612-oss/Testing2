@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowDownRight, ArrowUpRight, Check, Heart, Menu, Search, ShoppingBag, X, UserRound, Instagram, MessageCircle, Phone, Mail } from "lucide-react";
 
@@ -26,6 +26,30 @@ export default function HomePage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [toast, setToast] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
+  const [panel, setPanel] = useState<"bag" | "wishlist" | null>(null);
+  const [storageReady, setStorageReady] = useState(false);
+  useEffect(() => {
+    try {
+      const storedBag = JSON.parse(localStorage.getItem("weiren-bag") || "[]");
+      const storedSaved = JSON.parse(localStorage.getItem("weiren-wishlist") || "[]");
+      if (Array.isArray(storedBag)) setBag(storedBag.filter((id: unknown) => typeof id === "number"));
+      if (Array.isArray(storedSaved)) setSaved(storedSaved.filter((id: unknown) => typeof id === "number"));
+    } catch { /* Ignore invalid browser storage and start with an empty bag. */ }
+    setStorageReady(true);
+    const sync = () => {
+      try {
+        const b = JSON.parse(localStorage.getItem("weiren-bag") || "[]");
+        const w = JSON.parse(localStorage.getItem("weiren-wishlist") || "[]");
+        if (Array.isArray(b)) setBag(b.filter((id: unknown) => typeof id === "number"));
+        if (Array.isArray(w)) setSaved(w.filter((id: unknown) => typeof id === "number"));
+      } catch { /* Keep current state. */ }
+    };
+    window.addEventListener("weiren-storage-sync", sync);
+    window.addEventListener("storage", sync);
+    return () => { window.removeEventListener("weiren-storage-sync", sync); window.removeEventListener("storage", sync); };
+  }, []);
+  useEffect(() => { if (storageReady) localStorage.setItem("weiren-bag", JSON.stringify(bag)); }, [bag, storageReady]);
+  useEffect(() => { if (storageReady) localStorage.setItem("weiren-wishlist", JSON.stringify(saved)); }, [saved, storageReady]);
   const visibleProducts = useMemo(() => products.filter(p => {
     const matchesQuery = (p.name + " " + p.category).toLowerCase().includes(query.toLowerCase());
     const categoryMap: Record<string, string> = { "T-shirts": "T-shirts", "Shirts": "Shirts", "Jackets": "Outerwear", "Bottoms": "Bottoms" };
@@ -50,7 +74,7 @@ export default function HomePage() {
       </nav>
       <div className="header-actions">
         <button className="icon-button" aria-label="Search products" onClick={() => setSearchOpen(!searchOpen)}>{searchOpen ? <X size={19}/> : <Search size={19}/>}</button>
-        <Link className="icon-button login-link" href="/login" aria-label="Log in"><UserRound size={19}/></Link><a className="bag-button" href="#new-drops"><ShoppingBag size={18} strokeWidth={1.6}/><span>BAG ({bag.length})</span></a>
+        <button className="icon-button wishlist-header" onClick={() => setPanel("wishlist")} aria-label={"Open wishlist, " + saved.length + " saved items"}><Heart size={19}/><span>{saved.length}</span></button><Link className="icon-button login-link" href="/login" aria-label="Log in"><UserRound size={19}/></Link><button className="bag-button" type="button" onClick={() => setPanel("bag")} aria-label={"Open shopping bag, " + bag.length + " items"}><ShoppingBag size={18} strokeWidth={1.6}/><span>BAG ({bag.length})</span></button>
         <button className="icon-button mobile-menu" aria-label="Toggle menu" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X/> : <Menu/>}</button>
       </div>
     </header>
@@ -83,6 +107,12 @@ export default function HomePage() {
     <section className="newsletter section-wrap"><div><div className="eyebrow">THE NEXT GOOD FIND</div><h2>First dibs. <em>Good stuff.</em></h2><p>New drops, rare finds, and the occasional note from us. No noise.</p></div><form className="newsletter-form" onSubmit={e => { e.preventDefault(); setToast("You're on the list. (Demo only)"); window.setTimeout(() => setToast(""), 2200); }}><label className="sr-only" htmlFor="email">Email address</label><input id="email" type="email" placeholder="YOUR EMAIL ADDRESS" required/><button aria-label="Join newsletter"><ArrowUpRight size={22}/></button><small>By subscribing, you agree to receive WEIREN updates.</small></form></section>
 
     <footer className="site-footer" id="contact"><div className="footer-top"><Link href="/" className="wordmark footer-wordmark">WEIREN<span>®</span></Link><p>GOOD CLOTHES DESERVE<br/>ANOTHER STORY.</p><a href="#top" className="back-top">BACK TO TOP ↑</a></div><div className="footer-contact"><div className="footer-socials"><span className="footer-label">FIND / CONTACT US</span><button type="button" disabled aria-label="Instagram coming soon"><Instagram size={19}/><span>Instagram · Soon</span></button><button type="button" disabled aria-label="WhatsApp coming soon"><MessageCircle size={19}/><span>WhatsApp · Soon</span></button><button type="button" disabled aria-label="Helpline coming soon"><Phone size={18}/><span>Helpline · Coming soon</span></button><button type="button" disabled aria-label="Email coming soon"><Mail size={18}/><span>Email · Coming soon</span></button></div><p className="contact-note">Contact details and social links will be added when WEIREN is ready. Nothing is connected yet.</p></div><div className="footer-bottom"><span>© 2026 WEIREN STUDIO</span><div><a href="#contact">CONTACT</a><a href="#our-story">OUR STORY</a><a href="#new-drops">SHOP ALL</a></div><span>MADE FOR A SECOND LIFE <span className="footer-star">✳</span></span></div></footer>
+    {panel && <div className="store-overlay" role="presentation" onMouseDown={event => { if (event.target === event.currentTarget) setPanel(null); }}>
+      <section className="store-drawer" role="dialog" aria-modal="true" aria-label={panel === "bag" ? "Shopping bag" : "Wishlist"}>
+        <div className="drawer-heading"><div><span className="eyebrow">{panel === "bag" ? "YOUR SELECTION" : "SAVED FOR LATER"}</span><h2>{panel === "bag" ? "Your bag" : "Your wishlist"} <em>({panel === "bag" ? bagProducts.length : savedProducts.length})</em></h2></div><button className="drawer-close" onClick={() => setPanel(null)} aria-label="Close panel"><X/></button></div>
+        {panel === "bag" ? (bagProducts.length ? <><div className="drawer-items">{bagProducts.map(p => <article className="drawer-item" key={p.id}><Link href={"/product/" + p.id} className="drawer-item-image" style={{backgroundImage: "url('" + p.image + "')"}} aria-label={"View " + p.name} onClick={() => setPanel(null)}/><div className="drawer-item-info"><Link href={"/product/" + p.id} onClick={() => setPanel(null)}>{p.name}</Link><p>Size {p.size} · {p.condition}</p><strong>₹{p.price.toLocaleString("en-IN")}</strong><button onClick={() => removeFromBag(p.id)}>REMOVE</button></div></article>)}</div><div className="drawer-total"><span>SUBTOTAL</span><strong>₹{bagTotal.toLocaleString("en-IN")}</strong></div><p className="drawer-note">Checkout is not connected yet. Your selected items stay saved in this browser.</p><button className="drawer-primary" onClick={() => { setPanel(null); document.getElementById("new-drops")?.scrollIntoView({behavior:"smooth"}); }}>CONTINUE SHOPPING <ArrowUpRight size={16}/></button><button className="drawer-clear" onClick={() => setBag([])}>CLEAR BAG</button></> : <div className="drawer-empty"><ShoppingBag size={27}/><h3>Your bag is empty.</h3><p>Tap “Add to bag” on a piece you like.</p><button className="drawer-primary" onClick={() => { setPanel(null); document.getElementById("new-drops")?.scrollIntoView({behavior:"smooth"}); }}>EXPLORE THE FINDS <ArrowUpRight size={16}/></button></div>) : (savedProducts.length ? <><div className="drawer-items">{savedProducts.map(p => <article className="drawer-item" key={p.id}><Link href={"/product/" + p.id} className="drawer-item-image" style={{backgroundImage: "url('" + p.image + "')"}} aria-label={"View " + p.name} onClick={() => setPanel(null)}/><div className="drawer-item-info"><Link href={"/product/" + p.id} onClick={() => setPanel(null)}>{p.name}</Link><p>Size {p.size} · {p.condition}</p><strong>₹{p.price.toLocaleString("en-IN")}</strong><div className="drawer-item-actions"><button onClick={() => { addToBag(p); setPanel("bag"); }}>ADD TO BAG +</button><button onClick={() => removeFromWishlist(p.id)}>REMOVE</button></div></div></article>)}</div><button className="drawer-clear" onClick={() => setSaved([])}>CLEAR WISHLIST</button></> : <div className="drawer-empty"><Heart size={27}/><h3>Nothing saved yet.</h3><p>Tap the heart on a product to keep it here.</p><button className="drawer-primary" onClick={() => { setPanel(null); document.getElementById("new-drops")?.scrollIntoView({behavior:"smooth"}); }}>FIND SOMETHING GOOD <ArrowUpRight size={16}/></button></div>)}
+      </section>
+    </div>}
     {toast && <div className="toast"><Check size={16}/>{toast}</div>}
   </main>;
 }
