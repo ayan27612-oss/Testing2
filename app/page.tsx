@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowDownRight, ArrowRight, ArrowUpRight, Check, Heart, Menu, Search, ShoppingBag, X } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, Check, Heart, Menu, Search, ShoppingBag, X, UserRound, Instagram, MessageCircle, Phone, Mail } from "lucide-react";
 
 type Product = { id: number; name: string; category: string; price: number; size: string; condition: string; image: string; label?: string };
 const products: Product[] = [
@@ -24,7 +24,12 @@ export default function HomePage() {
   const [query, setQuery] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
   const [toast, setToast] = useState("");
-  const visibleProducts = useMemo(() => products.filter(p => (p.name + " " + p.category).toLowerCase().includes(query.toLowerCase())), [query]);
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const visibleProducts = useMemo(() => products.filter(p => {
+    const matchesQuery = (p.name + " " + p.category).toLowerCase().includes(query.toLowerCase());
+    const matchesCategory = !selectedCategory || (selectedCategory === "Tees & tops" ? ["T-shirts", "Shirts"].includes(p.category) : selectedCategory === "Denim" ? /denim|jeans/i.test(p.name + " " + p.category) : selectedCategory === "Outerwear" ? p.category === "Outerwear" : true);
+    return matchesQuery && matchesCategory;
+  }), [query, selectedCategory]);
   function addToBag(product: Product) {
     setBag(old => old.includes(product.id) ? old : [...old, product.id]);
     setToast(bag.includes(product.id) ? "Already in your bag" : "Added to your bag");
@@ -43,7 +48,7 @@ export default function HomePage() {
       </nav>
       <div className="header-actions">
         <button className="icon-button" aria-label="Search products" onClick={() => setSearchOpen(!searchOpen)}>{searchOpen ? <X size={19}/> : <Search size={19}/>}</button>
-        <a className="bag-button" href="#new-drops"><ShoppingBag size={18} strokeWidth={1.6}/><span>BAG ({bag.length})</span></a>
+        <Link className="icon-button login-link" href="/login" aria-label="Log in"><UserRound size={19}/></Link><a className="bag-button" href="#new-drops"><ShoppingBag size={18} strokeWidth={1.6}/><span>BAG ({bag.length})</span></a>
         <button className="icon-button mobile-menu" aria-label="Toggle menu" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X/> : <Menu/>}</button>
       </div>
     </header>
@@ -63,19 +68,19 @@ export default function HomePage() {
 
     <div className="ticker"><div>LESS NEW, MORE YOU <span>✳</span> CLOTHES WITH CHARACTER <span>✳</span> ONE-OF-A-KIND FINDS <span>✳</span> LESS NEW, MORE YOU <span>✳</span> CLOTHES WITH CHARACTER <span>✳</span> ONE-OF-A-KIND FINDS <span>✳</span></div></div>
 
-    <section className="category-section section-wrap" id="categories"><div className="section-heading"><div><div className="eyebrow">THE GOOD STUFF, SORTED</div><h2>Find your <em>kind.</em></h2></div><a className="text-link" href="#new-drops">EXPLORE ALL PIECES <ArrowUpRight size={16}/></a></div><div className="category-grid">{categories.map((cat, i) => <a href="#new-drops" className={"category-card category-" + (i + 1)} key={cat.name}><div className="category-photo" style={{backgroundImage: "url('" + cat.image + "')"}}/><div className="category-number">{cat.number}</div><div className="category-info"><div><span>{cat.count}</span><h3>{cat.name}</h3></div><span className="circle-arrow"><ArrowUpRight size={20}/></span></div></a>)}</div></section>
+    <section className="category-section section-wrap" id="categories"><div className="section-heading"><div><div className="eyebrow">THE GOOD STUFF, SORTED</div><h2>Find your <em>kind.</em></h2></div><a className="text-link" href="#new-drops">EXPLORE ALL PIECES <ArrowUpRight size={16}/></a></div><div className="category-grid">{categories.map((cat, i) => <a href="#new-drops" onClick={() => setSelectedCategory(cat.name)} className={"category-card category-" + (i + 1)} key={cat.name}><div className="category-photo" style={{backgroundImage: "url('" + cat.image + "')"}}/><div className="category-number">{cat.number}</div><div className="category-info"><div><span>{cat.count}</span><h3>{cat.name}</h3></div><span className="circle-arrow"><ArrowUpRight size={20}/></span></div></a>)}</div></section>
 
-    <section className="drops-section" id="new-drops"><div className="section-wrap"><div className="section-heading"><div><div className="eyebrow"><span className="live-dot"/> JUST ADDED / DROP 001</div><h2>The latest <em>finds.</em></h2><p className="section-subtitle">Small batches. Individual pieces. When it’s gone, it’s a story.</p></div><div className="drop-count">01 — 04 <span>/ SELECTED PIECES</span></div></div>
-      {query && <div className="results-note">Showing matches for “{query}” <button onClick={() => setQuery("")}>CLEAR ×</button></div>}
+    <section className="drops-section" id="new-drops"><div className="section-wrap"><div className="section-heading"><div><div className="eyebrow"><span className="live-dot"/> JUST ADDED / DROP 001</div><h2>The latest <em>finds.</em></h2><p className="section-subtitle">Small batches. Individual pieces. When it’s gone, it’s a story.</p></div><div className="drop-count">{selectedCategory ? selectedCategory.toUpperCase() : "01 — 04"} <span>/ SELECTED PIECES</span></div></div>
+      {(query || selectedCategory) && <div className="results-note">Showing {selectedCategory ? selectedCategory : "all categories"}{query ? ` for “${query}”` : ""} <button onClick={() => { setQuery(""); setSelectedCategory(""); }}>SHOW ALL ×</button></div>}
       <div className="product-grid">{visibleProducts.map(p => <article className="product-card" key={p.id}><div className="product-image-wrap"><Link href={"/product/" + p.id} className="product-image" style={{backgroundImage: "url('" + p.image + "')"}} aria-label={"View " + p.name}/>{p.label && <span className="product-label">{p.label}</span>}<button className={"wishlist " + (saved.includes(p.id) ? "is-saved" : "")} aria-label={saved.includes(p.id) ? "Remove from saved items" : "Save item"} onClick={() => toggleSaved(p.id)}><Heart size={18} fill={saved.includes(p.id) ? "currentColor" : "none"}/></button><button className="quick-add" onClick={() => addToBag(p)}>{bag.includes(p.id) ? <><Check size={15}/> IN BAG</> : <>ADD TO BAG <span>+</span></>}</button></div><div className="product-meta"><div><Link href={"/product/" + p.id} className="product-name">{p.name}</Link><p>{p.category} · Size {p.size}</p></div><span className="product-price">₹{p.price.toLocaleString("en-IN")}</span></div><div className="condition-line"><span className="condition-dot"/> CONDITION: {p.condition.toUpperCase()} <span className="one-off">ONE-OFF PIECE</span></div></article>)}</div>
       {visibleProducts.length === 0 && <div className="empty-search">No finds for that search. Try “tee”, “denim”, or “jacket”.</div>}
       <div className="center-cta"><a className="button button-outline" href="#categories">EXPLORE THE COLLECTION <ArrowUpRight size={17}/></a><p>EVERY PIECE HAS A PAST. MAKE IT PART OF YOURS.</p></div></div></section>
 
-    <section className="manifesto" id="our-story"><div className="manifesto-top"><span>OUR POINT OF VIEW</span><span>NO. 001 / REWEAR CULTURE</span></div><div className="manifesto-content"><span className="manifesto-mark">W.</span><h2>Not more clothes.<br/>More <em>meaning.</em></h2><p>WEIREN is for the curious dresser. The re-wearer. The person who knows personal style isn’t about having more, it’s about finding the right thing.</p><a className="text-link text-link-light" href="mailto:hello@weiren.store">A LITTLE MORE ABOUT US <ArrowUpRight size={16}/></a></div><div className="manifesto-bottom"><span>GOOD FINDS, GIVEN ANOTHER GO.</span><span>WEAR IT DIFFERENT. ↗</span></div></section>
+    <section className="manifesto" id="our-story"><div className="manifesto-top"><span>OUR POINT OF VIEW</span><span>NO. 001 / REWEAR CULTURE</span></div><div className="manifesto-content"><span className="manifesto-mark">W.</span><h2>Not more clothes.<br/>More <em>meaning.</em></h2><p>WEIREN is for the curious dresser. The re-wearer. The person who knows personal style isn’t about having more, it’s about finding the right thing.</p><a className="text-link text-link-light" href="#contact">A LITTLE MORE ABOUT US <ArrowUpRight size={16}/></a></div><div className="manifesto-bottom"><span>GOOD FINDS, GIVEN ANOTHER GO.</span><span>WEAR IT DIFFERENT. ↗</span></div></section>
 
     <section className="newsletter section-wrap"><div><div className="eyebrow">THE NEXT GOOD FIND</div><h2>First dibs. <em>Good stuff.</em></h2><p>New drops, rare finds, and the occasional note from us. No noise.</p></div><form className="newsletter-form" onSubmit={e => { e.preventDefault(); setToast("You're on the list. (Demo only)"); window.setTimeout(() => setToast(""), 2200); }}><label className="sr-only" htmlFor="email">Email address</label><input id="email" type="email" placeholder="YOUR EMAIL ADDRESS" required/><button aria-label="Join newsletter"><ArrowUpRight size={22}/></button><small>By subscribing, you agree to receive WEIREN updates.</small></form></section>
 
-    <footer className="site-footer"><div className="footer-top"><Link href="/" className="wordmark footer-wordmark">WEIREN<span>®</span></Link><p>GOOD CLOTHES DESERVE<br/>ANOTHER STORY.</p><a href="#top" className="back-top">BACK TO TOP ↑</a></div><div className="footer-bottom"><span>© 2026 WEIREN STUDIO</span><div><a href="mailto:hello@weiren.store">CONTACT</a><a href="#our-story">OUR STORY</a><a href="#new-drops">SHOP ALL</a></div><span>MADE FOR A SECOND LIFE <span className="footer-star">✳</span></span></div></footer>
+    <footer className="site-footer" id="contact"><div className="footer-top"><Link href="/" className="wordmark footer-wordmark">WEIREN<span>®</span></Link><p>GOOD CLOTHES DESERVE<br/>ANOTHER STORY.</p><a href="#top" className="back-top">BACK TO TOP ↑</a></div><div className="footer-contact"><div className="footer-socials"><span className="footer-label">FIND / CONTACT US</span><button type="button" disabled aria-label="Instagram coming soon"><Instagram size={19}/><span>Instagram · Soon</span></button><button type="button" disabled aria-label="WhatsApp coming soon"><MessageCircle size={19}/><span>WhatsApp · Soon</span></button><button type="button" disabled aria-label="Helpline coming soon"><Phone size={18}/><span>Helpline · Coming soon</span></button><button type="button" disabled aria-label="Email coming soon"><Mail size={18}/><span>Email · Coming soon</span></button></div><p className="contact-note">Contact details and social links will be added when WEIREN is ready. Nothing is connected yet.</p></div><div className="footer-bottom"><span>© 2026 WEIREN STUDIO</span><div><a href="#contact">CONTACT</a><a href="#our-story">OUR STORY</a><a href="#new-drops">SHOP ALL</a></div><span>MADE FOR A SECOND LIFE <span className="footer-star">✳</span></span></div></footer>
     {toast && <div className="toast"><Check size={16}/>{toast}</div>}
   </main>;
 }
