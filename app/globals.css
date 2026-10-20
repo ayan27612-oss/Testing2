@@ -202,3 +202,43 @@
 @media (max-width: 600px) {
   .theme-toggle { width: 31px; height: 31px; padding: 5px; }
 }
+
+
+/* Keep the theme control visible on narrow screens where the header is crowded. */
+.theme-toggle {
+  position: fixed !important;
+  right: 18px;
+  bottom: 22px;
+  z-index: 1200;
+  width: 48px !important;
+  height: 48px !important;
+  padding: 0;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--paper);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, .22);
+  cursor: pointer;
+}
+:root[data-theme="dark"] .theme-toggle {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--line);
+}
+@media (min-width: 901px) {
+  .theme-toggle {
+    position: static !important;
+    width: 34px !important;
+    height: 34px !important;
+    background: transparent;
+    color: inherit;
+    box-shadow: none;
+  }
+  :root[data-theme="dark"] .theme-toggle {
+    background: transparent;
+    color: inherit;
+  }
+}
