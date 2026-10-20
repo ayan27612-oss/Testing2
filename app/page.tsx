@@ -83,7 +83,7 @@ export default function HomePage() {
   }
 
   return <main id="top">
-    <div className="announcement"><span>GOOD FINDS. BETTER FUTURES.</span><span className="announcement-right">CURATED PRE-LOVED CLOTHING <b>✳</b> MADE TO BE WORN AGAIN</span></div>
+    <div className="announcement"><span>GOOD FINDS. BETTER FUTURES.</span></div>
     <header className="site-header">
       <Link href="/" className="wordmark" aria-label="WEIREN home">WEIREN<span>®</span></Link>
       <nav className={menuOpen ? "nav-links nav-open" : "nav-links"}>
@@ -102,14 +102,12 @@ export default function HomePage() {
 
     <section className="hero">
       <div className="hero-copy">
-        <div className="eyebrow"><span className="eyebrow-line"/> THE ART OF FINDING</div>
+        <div className="eyebrow">SHOP PRE-LOVED FINDS</div>
         <h1>Wear it<br/><em>different.</em></h1>
         <p className="hero-description">Good clothes deserve another story. Discover one-off thrift finds, vintage energy, and everyday pieces with a past.</p>
         <a className="button button-dark" href="#new-drops">SHOP THE LATEST DROP <ArrowUpRight size={17}/></a>
-        <div className="hero-note"><span className="asterisk">✳</span><span>PRE-LOVED.<br/>NEVER ORDINARY.</span></div>
-        <div className="hero-index">INDEPENDENT STYLE STUDIO <span>— EST. 2026</span></div>
       </div>
-      <div className="hero-visual"><div className="hero-image" role="img" aria-label="Editorial streetwear outfit in warm neutral tones"/><div className="hero-stamp"><span>FOUND</span><span>NOT</span><span>FOLLOWED.</span><ArrowDownRight size={23}/></div><div className="image-caption"><span>FIG. 001</span><span>THE EVERYDAY ICONS EDIT</span></div><div className="hero-side-note">SECOND HAND, FIRST CHOICE ↗</div></div>
+      <div className="hero-visual"><div className="hero-image" role="img" aria-label="Editorial streetwear outfit in warm neutral tones"/></div>
     </section>
 
     <div className="ticker"><div>LESS NEW, MORE YOU <span>✳</span> CLOTHES WITH CHARACTER <span>✳</span> ONE-OF-A-KIND FINDS <span>✳</span> LESS NEW, MORE YOU <span>✳</span> CLOTHES WITH CHARACTER <span>✳</span> ONE-OF-A-KIND FINDS <span>✳</span></div></div>
@@ -122,7 +120,7 @@ export default function HomePage() {
       {visibleProducts.length === 0 && <div className="empty-search">No finds for that search. Try “tee”, “denim”, or “jacket”.</div>}
       <div className="center-cta"><a className="button button-outline" href="#categories">EXPLORE THE COLLECTION <ArrowUpRight size={17}/></a><p>EVERY PIECE HAS A PAST. MAKE IT PART OF YOURS.</p></div></div></section>
 
-    <section className="manifesto" id="our-story"><div className="manifesto-top"><span>OUR POINT OF VIEW</span><span>NO. 001 / REWEAR CULTURE</span></div><div className="manifesto-content"><span className="manifesto-mark">W.</span><h2>Not more clothes.<br/>More <em>meaning.</em></h2><p>WEIREN is for the curious dresser. The re-wearer. The person who knows personal style isn’t about having more, it’s about finding the right thing.</p><a className="text-link text-link-light" href="#contact">A LITTLE MORE ABOUT US <ArrowUpRight size={16}/></a></div><div className="manifesto-bottom"><span>GOOD FINDS, GIVEN ANOTHER GO.</span><span>WEAR IT DIFFERENT. ↗</span></div></section>
+    
 
     <section className="newsletter section-wrap"><div><div className="eyebrow">THE NEXT GOOD FIND</div><h2>First dibs. <em>Good stuff.</em></h2><p>New drops, rare finds, and the occasional note from us. No noise.</p></div><form className="newsletter-form" onSubmit={e => { e.preventDefault(); setToast("You're on the list. (Demo only)"); window.setTimeout(() => setToast(""), 2200); }}><label className="sr-only" htmlFor="email">Email address</label><input id="email" type="email" placeholder="YOUR EMAIL ADDRESS" required/><button aria-label="Join newsletter"><ArrowUpRight size={22}/></button><small>By subscribing, you agree to receive WEIREN updates.</small></form></section>
 
