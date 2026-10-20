@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowDownRight, ArrowUpRight, Check, Heart, Menu, Search, ShoppingBag, X, UserRound, Instagram, MessageCircle, Phone, Mail } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, Check, Heart, Menu, Search, ShoppingBag, X, UserRound, Instagram, MessageCircle, Phone, Mail, Sun, Moon } from "lucide-react";
 
 type Product = { id: number; name: string; category: string; price: number; size: string; condition: string; image: string; label?: string };
 const products: Product[] = [
@@ -19,6 +19,9 @@ const categories = [
 ];
 
 export default function HomePage() {
+  const [theme, setTheme] = useState<"light" | "dark">("light");
+  useEffect(() => { const savedTheme = localStorage.getItem("weiren-theme"); if (savedTheme === "dark" || savedTheme === "light") setTheme(savedTheme); }, []);
+  useEffect(() => { document.documentElement.dataset.theme = theme; localStorage.setItem("weiren-theme", theme); }, [theme]);
   const [bag, setBag] = useState<number[]>([]);
   const [saved, setSaved] = useState<number[]>([]);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -89,6 +92,7 @@ export default function HomePage() {
         <a href="#our-story" onClick={() => setMenuOpen(false)}>OUR STORY</a>
       </nav>
       <div className="header-actions">
+        <button className="icon-button theme-toggle" type="button" onClick={() => setTheme(current => current === "light" ? "dark" : "light")} aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`} title={`Switch to ${theme === "light" ? "dark" : "light"} mode`}>{theme === "light" ? <Moon size={19} /> : <Sun size={19} />}</button>
         <button className="icon-button" aria-label="Search products" onClick={() => setSearchOpen(!searchOpen)}>{searchOpen ? <X size={19}/> : <Search size={19}/>}</button>
         <button className="icon-button wishlist-header" onClick={() => setPanel("wishlist")} aria-label={"Open wishlist, " + saved.length + " saved items"}><Heart size={19}/><span>{saved.length}</span></button><Link className="icon-button login-link" href="/login" aria-label="Log in"><UserRound size={19}/></Link><button className="bag-button" type="button" onClick={() => setPanel("bag")} aria-label={"Open shopping bag, " + bag.length + " items"}><ShoppingBag size={18} strokeWidth={1.6}/><span>BAG ({bag.length})</span></button>
         <button className="icon-button mobile-menu" aria-label="Toggle menu" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X/> : <Menu/>}</button>
